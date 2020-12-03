@@ -1,5 +1,4 @@
-import 'dart:async';
-import 'package:time/time.dart';
+
 import 'package:World_time/services/world_time.dart';
 import 'package:flutter/material.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
@@ -12,6 +11,8 @@ class ChooseLocation extends StatefulWidget {
 
 class _ChooseLocationState extends State<ChooseLocation> {
   bool isActive = true;
+  dynamic loader;
+  bool loading = false;    
   List<WorldTime> locations = [
     WorldTime(url: 'Africa/Lagos', location: 'Lagos', flag: 'nigeria.png'),
     WorldTime(url: 'Africa/Tunis', location: 'Tunis', flag: 'tunis.jpg'),
@@ -40,35 +41,49 @@ class _ChooseLocationState extends State<ChooseLocation> {
         'isDayTime': instance.isDayTime,
       });
     } catch (e) {
-      hideLoadingDialog();
-      _onAlertButtonsPressed(context, AlertType.none, 'Network Error',
-          'OOP! unable to connect...');
+            hideLoadingDialog();
+      _onAlertButtonsPressed(context, AlertType.none, 'Network Error', 'OOP! unable to connect...', new MaterialPageRoute(builder: (context) => new ChooseLocation()));
+  
     }
-  }
 
-  _onAlertButtonsPressed(context, type, title, body) {
+  }
+ _onAlertButtonsPressed(context, type, title, body, action) {
     Alert(
       context: context,
       type: type,
       title: title,
       desc: body,
-      buttons: [
+      buttons: [     
         DialogButton(
           child: Text(
-            "Close",
-            style: TextStyle(color: Colors.white, fontSize: 20),
+            "Cancel",
+            style: TextStyle(color: Colors.white, fontSize: 18),
           ),
-          onPressed: () => Navigator.pop(context),
-          width: 120,
+          onPressed: () =>  Navigator.push(
+                  context,
+                  action
+                  
+                ),  
+                        
           gradient: LinearGradient(colors: [
             Color.fromRGBO(59, 0, 0, 1.0),
             Color.fromRGBO(159, 0, 0, 1.0)
           ]),
+        ),
+        DialogButton(
+          child: Text(
+            "Retry",
+            style: TextStyle(color: Colors.white, fontSize: 18),
+          ),
+          onPressed: () =>  Navigator.push(
+                  context,
+                  action
+                ),
+          color: Color.fromRGBO(0, 0, 72, 1.0),
         )
       ],
     ).show();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

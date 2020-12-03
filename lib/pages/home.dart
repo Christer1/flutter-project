@@ -16,6 +16,7 @@ class _HomeState extends State<Home> {
     //set background
     String bgImage = data['isDayTime'] ? 'day.png' : 'night.png';
     Color bgColor = data['isDayTime'] ? Colors.blue : Colors.indigo[700];
+    Color iconColor = data['isDayTime'] ? Colors.blue[400] : Colors.blue[800];
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -32,6 +33,7 @@ class _HomeState extends State<Home> {
             child: Column(
               children: <Widget>[
                 FlatButton.icon(
+                  color: iconColor,
                   onPressed: () async {
                    dynamic result = await Navigator.pushNamed(context, '/location');
                    setState(() {
@@ -50,21 +52,25 @@ class _HomeState extends State<Home> {
                   label: Text(
                       'Edit location',
                         style: TextStyle(
-                      color: Colors.grey[300],
+                      color: Colors.white,
                   )
                   ),
                 ),
                 SizedBox(height: 20),
-                Row(
+               Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget> [
+                  children: [
+                    CircleAvatar(
+                      backgroundImage: AssetImage('assets/${data['flag']}'),
+                      radius: 16.0,
+                    ),
+                    SizedBox(width: 10.0),
                     Text(
                       data['location'],
                       style: TextStyle(
-                        fontSize: 28,
-                        letterSpacing: 2,
-                        color: Colors.white,
-                      ),
+                          fontSize: 28.0,
+                          letterSpacing: 2.0,
+                          color: Colors.white),
                     ),
                   ],
                 ),

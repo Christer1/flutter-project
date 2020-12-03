@@ -91,8 +91,8 @@ class _ChooseLocationState extends State<ChooseLocation> {
                     await showLoadingDialog(); //load dialog
                     setState(() {
                       isActive = false;
-                      showLoadingDialog(); //load dialog
-                      Timer(Duration(seconds: 5), () => setState(() => isActive = true));
+                      //showLoadingDialog(); //load dialog
+                      //Timer(Duration(seconds: 5), () => setState(() => isActive = true));
                     });
                     updateTime(index);
                   }

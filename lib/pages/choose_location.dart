@@ -1,7 +1,6 @@
 
 import 'package:World_time/services/world_time.dart';
 import 'package:flutter/material.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:load/load.dart';
 
 class ChooseLocation extends StatefulWidget {
@@ -12,7 +11,7 @@ class ChooseLocation extends StatefulWidget {
 class _ChooseLocationState extends State<ChooseLocation> {
   bool isActive = true;
   dynamic loader;
-  bool loading = false;    
+  bool loading = true;
   List<WorldTime> locations = [
     WorldTime(url: 'Africa/Lagos', location: 'Lagos', flag: 'nigeria.png'),
     WorldTime(url: 'Africa/Tunis', location: 'Tunis', flag: 'tunis.jpg'),
@@ -26,64 +25,50 @@ class _ChooseLocationState extends State<ChooseLocation> {
     WorldTime(url: 'Asia/Jakarta', location: 'Jakarta', flag: 'indonesia.png'),
   ];
 
-  void updateTime(index) async {
+ updateTime(index) async {
     try {
-      WorldTime instance = locations[index];
-      await instance.getTime();
-
-      hideLoadingDialog(); //close dialog
-
-      //navigate to home screen
-      Navigator.pop(context, {
-        'location': instance.location,
-        'flag': instance.flag,
-        'time': instance.time,
-        'isDayTime': instance.isDayTime,
-      });
+      await locations[index].getTime();
+      //print(locations[index].flag);
     } catch (e) {
-            hideLoadingDialog();
-      _onAlertButtonsPressed(context, AlertType.none, 'Network Error', 'OOP! unable to connect...', new MaterialPageRoute(builder: (context) => new ChooseLocation()));
-  
-    }
+      print(e);
+      setState(() {
+        loading = false;
+      });
 
+      loader.dismiss();
+      return showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Oops!"),
+              content: Text("Connection Error"),
+              actions: [
+                FlatButton(
+                  child: Text("Close"),
+                  onPressed: () {
+                    Navigator.pop(
+                      context,
+                    );
+                  },
+                )
+              ],
+            );
+          });
+    }
+    setState(() {
+      loading = false;
+    });
+
+    loader.dismiss();
+    //navigate back to home screen
+    Navigator.pop(context, {
+      'location': locations[index].location,
+      'time': locations[index].time,
+      'flag': locations[index].flag,
+      'isDayTime': locations[index].isDayTime,
+    });
   }
- _onAlertButtonsPressed(context, type, title, body, action) {
-    Alert(
-      context: context,
-      type: type,
-      title: title,
-      desc: body,
-      buttons: [     
-        DialogButton(
-          child: Text(
-            "Cancel",
-            style: TextStyle(color: Colors.white, fontSize: 18),
-          ),
-          onPressed: () =>  Navigator.push(
-                  context,
-                  action
-                  
-                ),  
-                        
-          gradient: LinearGradient(colors: [
-            Color.fromRGBO(59, 0, 0, 1.0),
-            Color.fromRGBO(159, 0, 0, 1.0)
-          ]),
-        ),
-        DialogButton(
-          child: Text(
-            "Retry",
-            style: TextStyle(color: Colors.white, fontSize: 18),
-          ),
-          onPressed: () =>  Navigator.push(
-                  context,
-                  action
-                ),
-          color: Color.fromRGBO(0, 0, 72, 1.0),
-        )
-      ],
-    ).show();
-  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,33 +80,35 @@ class _ChooseLocationState extends State<ChooseLocation> {
         elevation: 0,
       ),
       body: ListView.builder(
-        itemCount: locations.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 4),
-            child: Card(
-              child: ListTile(
-                onTap: () async {
-                  if (isActive) {
-                    await showLoadingDialog(); //load dialog
+          itemCount: locations.length,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 0),
+              child: Card(
+                child: ListTile(
+                  onTap: () async {
                     setState(() {
-                      isActive = false;
-                      //showLoadingDialog(); //load dialog
-                      //Timer(Duration(seconds: 5), () => setState(() => isActive = true));
+                      loading = true;
                     });
+
+                    if (loading) {
+                      var dialog = await showLoadingDialog();
+                      setState(() {
+                        loader = dialog;
+                      });
+                    }
+
                     updateTime(index);
-                  }
-                },
-                title: Text(locations[index].location),
-                leading: CircleAvatar(
-                  backgroundImage:
-                      AssetImage('assets/${locations[index].flag}'),
+                  },
+                  title: Text(locations[index].location),
+                  leading: CircleAvatar(
+                    backgroundImage:
+                        AssetImage('assets/${locations[index].flag}'),
+                  ),
                 ),
               ),
-            ),
-          );
-        },
-      ),
+            );
+          }),
     );
   }
 }
